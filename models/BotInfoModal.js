@@ -14,7 +14,9 @@ const BotInfoSchema = new Schema({
   bot3_comment_dm_link: String,
   username_number: Number,
   status: String,
-  check_dm_status: Boolean
+  check_dm_status: Boolean,
+  check_comment_status: Boolean,
+  check_follow_status: Boolean
 });
 
 module.exports = BotInfoCollection = mongoose.model("bot_info", BotInfoSchema);

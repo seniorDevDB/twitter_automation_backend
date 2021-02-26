@@ -6,6 +6,8 @@ const ReplyCommentSchema = new Schema({
   username: String,
   account_name: String,
   content: String,
+  previous_content: String,
+  link: String,
   bot_number: Number,
   profile: Number
 });

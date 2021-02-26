@@ -1,6 +1,7 @@
 var express = require("express")
 // var socketIo = require("socket.io")
 var cors = require("cors")
+const path = require('path')
 var bodyParser = require("body-parser")
 
 mongodb = require('./db')
@@ -13,6 +14,11 @@ app.use(bodyParser.json())
 app.use(cors())
 router = require('./routes')(app, mongodb)
 app.use(bodyParser.urlencoded({ extended: false }))
+
+// app.use(express.static(path.join(__dirname, 'build')))
+// app.get('/', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'build', 'index.html'))
+// })
 
 // app.listen(5000, () => {
 //     console.log("listening ...")

@@ -10,15 +10,29 @@ const ReplyCommentCollection = require('../models/ReplyCommentModal');
 const CommentCollection = require('../models/CommentModal');
 const MessageCollection = require('../models/MessageModal');
 const ReplyMessageCollection = require('../models/ReplyMessageModal');
+const AlertCollection = require('../models/AlertModal');
 
-module.exports = (app, db) => {
+module.exports = (app) => {
     app.post("/fetch_all_data", (req, res) => {
         console.log("fetach all data called")
         ReportCollection.find({}).then(report => {
             console.log("report", report)
             NewMessageCollection.find({}).then(new_message => {
                 console.log("new-msg", new_message)
-                CommentCollection.find({"new_reply": false,"coming_time":""}).then(reply_comment => {
+                CommentCollection.find({"new_reply": true,}).then(reply_comment => {
+                    console.log("comments, reply", reply_comment)
+                    // let temp_ur = reply_comment[0].to_username
+                    // let temp_account_name = reply_comment[0].account_username
+                    // let temp = [reply_comment[0]]
+                    // for (let each in reply_comment){
+                    //     if (reply_comment[each].to_username == temp_ur && reply_comment[each].account_username == temp_account_name){
+                    //         continue
+                    //     }
+                    //     else {
+                    //         temp.push(reply_comment[each])
+                    //     }
+                    // }
+
                     res.send(JSON.stringify({
                         code: 'success',
                         report: report[0],
@@ -27,6 +41,28 @@ module.exports = (app, db) => {
                     }))
                 })
             })
+        })
+    })
+
+    app.post("/check_notification", (req, res) => {
+        AlertCollection.findOne({}).then(alert => {
+            if (alert === null || alert.status == false){
+                res.send(JSON.stringify({
+                    code: 'failed',
+                    message: 'No alert'
+                }))
+            }
+            else {
+                //update the database
+                AlertCollection.updateOne({"_id": ObjectId(alert._id)}, { $set: {"status": false}}, function(err, result){
+                    if (err) throw err;
+                    res.send(JSON.stringify({
+                        code: 'success',
+                        message: 'alert'
+                    }))
+                })
+
+            }
         })
     })
 
@@ -151,6 +187,52 @@ module.exports = (app, db) => {
         })
     })
 
+    app.post("/check_comment", (req, res) => {
+        console.log("check comment called")
+        BotInfoCollection.findOne({}).then(info => {
+            if(info === null) {
+                res.send(JSON.stringify({
+                    code: 'failed',
+                    message: 'Bot has not started yet!'
+                }))
+            }
+            else {
+                console.log("124124")
+                BotInfoCollection.updateOne({_id: ObjectId(info._id)}, { $set: {"check_comment_status": true}}, function(err, result){
+                    console.log("7111")
+                    if (err) throw err;
+                    res.send(JSON.stringify({
+                        code: 'success',
+                        message: 'It has been set true'
+                    })) 
+                });
+            }
+        })
+    })
+
+    app.post("/check_follow", (req, res) => {
+        console.log("check follow back called")
+        BotInfoCollection.findOne({}).then(info => {
+            if(info === null) {
+                res.send(JSON.stringify({
+                    code: 'failed',
+                    message: 'Bot has not started yet!'
+                }))
+            }
+            else {
+                console.log("124124")
+                BotInfoCollection.updateOne({_id: ObjectId(info._id)}, { $set: {"check_follow_status": true}}, function(err, result){
+                    console.log("7111")
+                    if (err) throw err;
+                    res.send(JSON.stringify({
+                        code: 'success',
+                        message: 'It has been set true'
+                    })) 
+                });
+            }
+        })
+    })
+
     app.post("/display_comment", (req, res) => {
         console.log("comment api called", req.body)
         CommentCollection.find({
@@ -178,15 +260,19 @@ module.exports = (app, db) => {
     app.post("/new_comment", (req, res) => {
         let content = req.body.content
         let username = req.body.username
-        let account_username = req.body.account_name
+        let account_name = req.body.account_name
         let bot_number = Number(req.body.bot_number)
         let profile = Number(req.body.profile)
+        let previous_content = req.body.previous_content
+        let link = req.body.link
         console.log("here is new msg backedn",req.body)
 
         ReplyCommentCollection.create({
             username,
-            account_username,
+            account_name,
             content,
+            previous_content,
+            link,
             bot_number,
             profile
         }, function(err) {

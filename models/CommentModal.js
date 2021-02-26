@@ -10,6 +10,7 @@ const CommentSchema = new Schema({
   save_time: String,
   bot_number: Number,
   profile: Number,
+  link: String,
   new_reply: Boolean
 });
 

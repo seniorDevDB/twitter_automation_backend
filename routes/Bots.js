@@ -281,10 +281,20 @@ module.exports = (app) => {
                 }))
             }
             else {
-                res.send(JSON.stringify({
-                    code: 'success',
-                    message: comments
-                }))
+                ReplyCommentCollection.find({
+                    username: req.body.username,
+                    account_name: req.body.account_name
+                }).then(reply_comments => {
+                    console.log("344444444", reply_comments)
+                    for(let i = 0; i < reply_comments.length; i++) {
+                        comments.push(reply_comments[i])
+                    }
+                    
+                    res.send(JSON.stringify({
+                        code: 'success',
+                        message: comments
+                    }))
+                })
             }
         })
     })
@@ -302,6 +312,7 @@ module.exports = (app) => {
         ReplyCommentCollection.create({
             username,
             account_name,
+            coming_time: "",
             content,
             previous_content,
             link,
@@ -338,10 +349,19 @@ module.exports = (app) => {
                 }))
             }
             else {
-                res.send(JSON.stringify({
-                    code: 'success',
-                    message: dms
-                }))
+                ReplyMessageCollection.find({
+                    username: req.body.username
+                }).then(reply_dms => {
+                    console.log("344444444", reply_dms)
+                    for(let i = 0; i < reply_dms.length; i++) {
+                        dms.push(reply_dms[i])
+                    }
+                    
+                    res.send(JSON.stringify({
+                        code: 'success',
+                        message: dms
+                    }))
+                })
             }
         })
     })
@@ -356,6 +376,7 @@ module.exports = (app) => {
 
         ReplyMessageCollection.create({
             username,
+            coming_time: "",
             content,
             link,
             bot_number,

@@ -5,6 +5,7 @@ const Schema = mongoose.Schema;
 const ReplyCommentSchema = new Schema({
   username: String,
   account_name: String,
+  coming_time: String,
   content: String,
   previous_content: String,
   link: String,

@@ -11,7 +11,8 @@ const CommentSchema = new Schema({
   bot_number: Number,
   profile: Number,
   link: String,
-  new_reply: Boolean
+  new_reply: Boolean,
+  mark_as_read: Boolean
 });
 
 module.exports = CommentCollection = mongoose.model("comment", CommentSchema);

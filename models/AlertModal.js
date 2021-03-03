@@ -3,7 +3,8 @@ const Schema = mongoose.Schema;
 
 // Create Schema
 const AlertSchema = new Schema({
-  status: Boolean,
+  dm: Boolean,
+  comment: Boolean
 });
 
 module.exports = AlertCollection = mongoose.model("alert", AlertSchema);

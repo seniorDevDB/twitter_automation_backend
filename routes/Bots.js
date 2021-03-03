@@ -17,27 +17,48 @@ module.exports = (app) => {
         console.log("fetach all data called")
         ReportCollection.find({}).then(report => {
             console.log("report", report)
-            NewMessageCollection.find({}).then(new_message => {
+            MessageCollection.find({"new_reply": true,}).then(new_message => {
                 console.log("new-msg", new_message)
+                let msg_temp = [];
+                for (let msg = 0 ; msg < new_message.length; msg ++){
+                    for (let each_msg = msg + 1 ; each_msg < new_message.length; each_msg ++){
+                        if (new_message[msg].to_username == new_message[each_msg].to_username && new_message[msg].account_username == new_message[each_msg].account_username){
+                            msg_temp.push(msg);
+                        }
+                    }
+                }
+
+                const msg_result = [];
+                for (let msg = 0 ; msg < new_message.length; msg ++) {
+                    if ( ! msg_temp.includes(msg))
+                        msg_result.push(new_message[msg]);
+                }
+                console.log("msg result", msg_result)
+
+
                 CommentCollection.find({"new_reply": true,}).then(reply_comment => {
                     console.log("comments, reply", reply_comment)
-                    // let temp_ur = reply_comment[0].to_username
-                    // let temp_account_name = reply_comment[0].account_username
-                    // let temp = [reply_comment[0]]
-                    // for (let each in reply_comment){
-                    //     if (reply_comment[each].to_username == temp_ur && reply_comment[each].account_username == temp_account_name){
-                    //         continue
-                    //     }
-                    //     else {
-                    //         temp.push(reply_comment[each])
-                    //     }
-                    // }
+                    let temp = [];
+                    for (let each = 0 ; each < reply_comment.length; each ++){
+                        for (let each_comment = each + 1 ; each_comment < reply_comment.length; each_comment ++){
+                            if (reply_comment[each].to_username == reply_comment[each_comment].to_username && reply_comment[each].account_username == reply_comment[each_comment].account_username){
+                                temp.push(each);
+                            }
+                        }
+                    }
 
+                    const result = [];
+                    for (let each = 0 ; each < reply_comment.length; each ++) {
+                        if ( ! temp.includes(each))
+                            result.push(reply_comment[each]);
+                    }
+                    
+                    console.log("temmp", result)
                     res.send(JSON.stringify({
                         code: 'success',
                         report: report[0],
                         new_message: new_message,
-                        reply_comment: reply_comment
+                        reply_comment: result
                     }))
                 })
             })
@@ -46,21 +67,32 @@ module.exports = (app) => {
 
     app.post("/check_notification", (req, res) => {
         AlertCollection.findOne({}).then(alert => {
-            if (alert === null || alert.status == false){
+            if (alert === null || (alert.dm == false && alert.comment == false)){
                 res.send(JSON.stringify({
                     code: 'failed',
                     message: 'No alert'
                 }))
             }
             else {
-                //update the database
-                AlertCollection.updateOne({"_id": ObjectId(alert._id)}, { $set: {"status": false}}, function(err, result){
-                    if (err) throw err;
-                    res.send(JSON.stringify({
-                        code: 'success',
-                        message: 'alert'
-                    }))
-                })
+                if (alert.dm == true) {
+                    //update the database
+                    AlertCollection.updateOne({"_id": ObjectId(alert._id)}, { $set: {"dm": false}}, function(err, result){
+                        if (err) throw err;
+                        res.send(JSON.stringify({
+                            code: 'success',
+                            message: 'dm'
+                        }))
+                    })
+                }
+                else if (alert.comment == true) {
+                    AlertCollection.updateOne({"_id": ObjectId(alert._id)}, { $set: {"comment": false}}, function(err, result){
+                        if (err) throw err;
+                        res.send(JSON.stringify({
+                            code: 'success',
+                            message: 'comment'
+                        }))
+                    })
+                }
 
             }
         })
@@ -317,6 +349,7 @@ module.exports = (app) => {
     app.post("/new_msg", (req, res) => {
         let content = req.body.content
         let username = req.body.username
+        let link = req.body.link
         let bot_number = Number(req.body.bot_number)
         let profile = Number(req.body.profile)
         console.log("here is new msg backedn",req.body)
@@ -324,6 +357,7 @@ module.exports = (app) => {
         ReplyMessageCollection.create({
             username,
             content,
+            link,
             bot_number,
             profile
         }, function(err) {
@@ -342,5 +376,29 @@ module.exports = (app) => {
             }
         });
 
+    })
+
+    app.post("/update_is_marked", (req, res) => {
+        console.log("inside updated marked", req.body)
+        CommentCollection.updateOne({"account_username": req.body.account_username, "to_username": req.body.to_username, "bot_number": req.body.bot_number, "profile": req.body.profile, "coming_time": req.body.coming_time, "content": req.body.content}, { $set: {"mark_as_read": true}}, function(err, result){
+            console.log("hhhhhhhh")
+            if (err) throw err;
+            res.send(JSON.stringify({
+                code: 'success',
+                message: 'Marked as read'
+            }))
+        })
+    })
+
+    app.post("/update_is_marked_dm", (req, res) => {
+        console.log("inside updated marked dm", req.body)
+        MessageCollection.updateOne({"account_username": req.body.account_username, "username": req.body.username, "bot_number": req.body.bot_number, "profile": req.body.profile, "coming_time": req.body.coming_time, "content": req.body.content}, { $set: {"mark_as_read": true}}, function(err, result){
+            console.log("hhhhhhddhh")
+            if (err) throw err;
+            res.send(JSON.stringify({
+                code: 'success',
+                message: 'Marked as read'
+            }))
+        })
     })
 };

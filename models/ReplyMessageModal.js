@@ -5,6 +5,7 @@ const Schema = mongoose.Schema;
 const ReplyMessageSchema = new Schema({
   username: String,
   content: String,
+  link: String,
   bot_number: Number,
   profile: Number
 });

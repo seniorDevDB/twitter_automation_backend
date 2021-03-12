@@ -3,16 +3,11 @@ const Schema = mongoose.Schema;
 
 // Create Schema
 const BotInfoSchema = new Schema({
-  bot1_dm1_link: String,
-  bot1_dm2_link: String,
-  bot1_comment_dm_link: String,
-  bot2_dm1_link: String,
-  bot2_dm2_link: String,
-  bot2_comment_dm_link: String,
-  bot3_dm1_link: String,
-  bot3_dm2_link: String,
-  bot3_comment_dm_link: String,
-  username_number: Number,
+  bot_dm1_link: String,
+  bot_dm2_link: String,
+  bot_comment_dm_link: String,
+  lead_number: Number,
+  bot_number: Number,
   status: String,
   check_dm_status: Boolean,
   check_comment_status: Boolean,

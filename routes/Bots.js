@@ -56,7 +56,7 @@ module.exports = (app) => {
                     console.log("temmp", result)
                     res.send(JSON.stringify({
                         code: 'success',
-                        report: report[0],
+                        report: report,
                         new_message: new_message,
                         reply_comment: result
                     }))
@@ -100,31 +100,22 @@ module.exports = (app) => {
 
     app.post("/start_bot", (req, res) => {
         console.log("start bot called")
-        let bot1_dm1_link = req.body.bot1_msg1
-        let bot1_dm2_link = req.body.bot1_msg2
-        let bot1_comment_dm_link = req.body.bot1_comment_msg
-        let bot2_dm1_link = req.body.bot2_msg1
-        let bot2_dm2_link = req.body.bot2_msg2
-        let bot2_comment_dm_link = req.body.bot2_comment_msg
-        let bot3_dm1_link = req.body.bot3_msg1
-        let bot3_dm2_link = req.body.bot3_msg2
-        let bot3_comment_dm_link = req.body.bot3_comment_msg
-        let username_number = req.body.username_num
+        let bot_dm1_link = req.body.bot_msg1
+        let bot_dm2_link = req.body.bot_msg2
+        let bot_comment_dm_link = req.body.bot_comment_msg
+        let lead_number = req.body.lead_number
+        let bot_number = req.body.bot_number
         let status = req.body.status
-
-        BotInfoCollection.findOne({}).then(info => {
+        console.log("inside start function")
+        BotInfoCollection.findOne({"bot_number": bot_number}).then(info => {
+            console.log(info)
             if(info === null) {
                 BotInfoCollection.create({
-                    bot1_dm1_link,
-                    bot1_dm2_link,
-                    bot1_comment_dm_link,
-                    bot2_dm1_link,
-                    bot2_dm2_link,
-                    bot2_comment_dm_link,
-                    bot3_dm1_link,
-                    bot3_dm2_link,
-                    bot3_comment_dm_link,
-                    username_number,
+                    bot_dm1_link,
+                    bot_dm2_link,
+                    bot_comment_dm_link,
+                    lead_number,
+                    bot_number,
                     status
                 }, function(err) {
                     if ( err ) {
@@ -168,8 +159,9 @@ module.exports = (app) => {
     app.post("/end_bot", (req, res) => {
         console.log("end bot called")
         let status = req.body.status
+        let bot_number = req.body.bot_number
         
-        BotInfoCollection.findOne({}).then(info => {
+        BotInfoCollection.findOne({"bot_number": bot_number}).then(info => {
             if(info === null) {
                 res.send(JSON.stringify({
                     code: 'failed',
@@ -198,7 +190,8 @@ module.exports = (app) => {
 
     app.post("/check_dm", (req, res) => {
         console.log("check dm called")
-        BotInfoCollection.findOne({}).then(info => {
+        let bot_number = req.body.bot_number
+        BotInfoCollection.findOne({"bot_number": bot_number}).then(info => {
             if(info === null) {
                 res.send(JSON.stringify({
                     code: 'failed',
@@ -221,7 +214,8 @@ module.exports = (app) => {
 
     app.post("/check_comment", (req, res) => {
         console.log("check comment called")
-        BotInfoCollection.findOne({}).then(info => {
+        let bot_number = req.body.bot_number
+        BotInfoCollection.findOne({"bot_number": bot_number}).then(info => {
             if(info === null) {
                 res.send(JSON.stringify({
                     code: 'failed',
@@ -244,7 +238,8 @@ module.exports = (app) => {
 
     app.post("/check_follow", (req, res) => {
         console.log("check follow back called")
-        BotInfoCollection.findOne({}).then(info => {
+        let bot_number = req.body.bot_number
+        BotInfoCollection.findOne({"bot_number": bot_number}).then(info => {
             if(info === null) {
                 res.send(JSON.stringify({
                     code: 'failed',

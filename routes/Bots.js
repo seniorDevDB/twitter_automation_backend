@@ -11,6 +11,7 @@ const CommentCollection = require('../models/CommentModal');
 const MessageCollection = require('../models/MessageModal');
 const ReplyMessageCollection = require('../models/ReplyMessageModal');
 const AlertCollection = require('../models/AlertModal');
+const UsedLeadCollection = require("../models/UsedLeadModal");
 
 module.exports = (app) => {
     app.post("/fetch_all_data", (req, res) => {
@@ -54,12 +55,19 @@ module.exports = (app) => {
                     }
                     
                     console.log("temmp", result)
-                    res.send(JSON.stringify({
-                        code: 'success',
-                        report: report,
-                        new_message: new_message,
-                        reply_comment: result
-                    }))
+
+                    //get used leads 
+                    UsedLeadCollection.find({}).then(used_lead => {
+                        console.log("used leads", used_lead)
+                        res.send(JSON.stringify({
+                            code: 'success',
+                            report: report,
+                            new_message: new_message,
+                            reply_comment: result,
+                            used_lead: used_lead
+                        }))
+                    })
+
                 })
             })
         })
@@ -104,6 +112,7 @@ module.exports = (app) => {
         let bot_dm2_link = req.body.bot_msg2
         let bot_comment_dm_link = req.body.bot_comment_msg
         let lead_number = req.body.lead_number
+        let lead_type = req.body.lead_type
         let bot_number = req.body.bot_number
         let status = req.body.status
         console.log("inside start function")
@@ -115,6 +124,7 @@ module.exports = (app) => {
                     bot_dm2_link,
                     bot_comment_dm_link,
                     lead_number,
+                    lead_type,
                     bot_number,
                     status
                 }, function(err) {

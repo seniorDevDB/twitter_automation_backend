@@ -6,6 +6,7 @@ const Schema = mongoose.Schema;
 const ReportSchema = new Schema({
   bot_number: Number,
   lead_number: Number,
+  lead_number_a_day: Number,
   sent_dm: Number,
   unsuccessful_dm: Number,
   spintax1_reply: Number,

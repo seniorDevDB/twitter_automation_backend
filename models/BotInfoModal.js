@@ -7,6 +7,7 @@ const BotInfoSchema = new Schema({
   bot_dm2_link: String,
   bot_comment_dm_link: String,
   lead_number: Number,
+  lead_type: String,
   bot_number: Number,
   status: String,
   check_dm_status: Boolean,

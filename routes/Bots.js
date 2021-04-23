@@ -12,6 +12,7 @@ const MessageCollection = require('../models/MessageModal');
 const ReplyMessageCollection = require('../models/ReplyMessageModal');
 const AlertCollection = require('../models/AlertModal');
 const UsedLeadCollection = require("../models/UsedLeadModal");
+const AccountCollection = require("../models/AccountModal");
 
 module.exports = (app) => {
     app.post("/fetch_all_data", (req, res) => {
@@ -55,19 +56,21 @@ module.exports = (app) => {
                     }
                     
                     console.log("temmp", result)
-
-                    //get used leads 
-                    UsedLeadCollection.find({}).then(used_lead => {
-                        console.log("used leads", used_lead)
-                        res.send(JSON.stringify({
-                            code: 'success',
-                            report: report,
-                            new_message: new_message,
-                            reply_comment: result,
-                            used_lead: used_lead
-                        }))
+                    //get account info
+                    AccountCollection.find({}).then(accounts => {
+                        //get used leads 
+                        UsedLeadCollection.find({}).then(used_lead => {
+                            console.log("used leads", used_lead)
+                            res.send(JSON.stringify({
+                                code: 'success',
+                                report: report,
+                                new_message: new_message,
+                                reply_comment: result,
+                                used_lead: used_lead,
+                                account: accounts
+                            }))
+                        })
                     })
-
                 })
             })
         })
@@ -426,5 +429,28 @@ module.exports = (app) => {
                 message: 'Marked as read'
             }))
         })
+    })
+
+    //this is to add bots info for the test
+    app.post("/save_accounttttt", (req, res) =>{
+        console.log("INSIDE SAVE ACCOUNT")
+        AccountCollection.create({
+            username: "@dirtydebbie100",
+            bot_number: 5,
+            status: true,
+            number_of_tried_leads: 0,
+            dm: 0,
+            dm_reply: 0,
+            comment: 0,
+            comment_reply: 0,
+            follow: 0,
+            follow_back: 0
+        }, function(err) {
+            if (err) throw err;
+            res.send(JSON.stringify({
+                code: 'success',
+                message: 'Saved'
+            }))
+        });
     })
 };

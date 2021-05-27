@@ -9,6 +9,7 @@ const AccountSchema = new Schema({
   number_of_tried_leads: Number,
   dm: Number,
   dm_reply: Number,
+  dm_expired: Number,
   comment: Number,
   comment_reply: Number,
   follow: Number,

@@ -8,11 +8,11 @@ const ReportSchema = new Schema({
   lead_number: Number,
   lead_number_a_day: Number,
   sent_dm: Number,
-  unsuccessful_dm: Number,
+  expired_dm: Number,
   spintax1_reply: Number,
   spintax2_reply: Number,
   sent_comment: Number,
-  unsuccessful_comment: Number,
+  expired_comment: Number,
   comment_reply: Number,
   follow: Number,
   follow_back: Number

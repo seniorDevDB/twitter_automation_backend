@@ -115,57 +115,87 @@ module.exports = (app) => {
         let bot_dm2_link = req.body.bot_msg2
         let bot_comment_dm_link = req.body.bot_comment_msg
         let lead_number = req.body.lead_number
+        console.log("here lead", lead_number)
         let lead_type = req.body.lead_type
         let bot_number = req.body.bot_number
         let status = req.body.status
-        console.log("inside start function")
-        BotInfoCollection.findOne({"bot_number": bot_number}).then(info => {
-            console.log(info)
-            if(info === null) {
-                BotInfoCollection.create({
-                    bot_dm1_link,
-                    bot_dm2_link,
-                    bot_comment_dm_link,
-                    lead_number,
-                    lead_type,
-                    bot_number,
-                    status
-                }, function(err) {
-                    if ( err ) {
-                        console.log(err)
+        console.log("inside start function", bot_number)
+        if (bot_number == 0) {
+            BotInfoCollection.find({}).then(info => {
+                let i = 0
+                for (var each in info) {
+                    console.log("her", each)
+                    BotInfoCollection.updateOne({"_id": ObjectId(info[each]._id)}, { $set: {
+                        "bot_dm1_link": bot_dm1_link,
+                        "bot_dm2_link": bot_dm2_link,
+                        "bot_comment_dm_link": bot_comment_dm_link,
+                        "lead_number": lead_number,
+                        "lead_type": lead_type,
+                        "status": status
+                    }}, function(err, result){
+                        if (err) throw err;
+                        if (i == info.length - 1){
+                            console.log("1377777")
+                            res.send(JSON.stringify({
+                                code: 'success',
+                                message: 'Successfully started the bot!'
+                            }))
+                        }
+                    })
+                    i = i + 1
+                }
+            })
+        }
+        else {
+            BotInfoCollection.findOne({"bot_number": bot_number}).then(info => {
+                console.log(info)
+                if(info === null) {
+                    BotInfoCollection.create({
+                        bot_dm1_link,
+                        bot_dm2_link,
+                        bot_comment_dm_link,
+                        lead_number,
+                        lead_type,
+                        bot_number,
+                        status
+                    }, function(err) {
+                        if ( err ) {
+                            console.log(err)
+                            res.send(JSON.stringify({
+                                code: 'failed',
+                                message: 'Something went wrong on backend, try again!'
+                            }))
+                        }
+                        else {
+                            res.send(JSON.stringify({
+                                code: 'success',
+                                message: 'Successfully inserted into database!'
+                            }))
+                        }
+                    });
+                }
+                else {
+                    if (info.status == "start") {
                         res.send(JSON.stringify({
                             code: 'failed',
-                            message: 'Something went wrong on backend, try again!'
+                            message: 'Bot is running now!'
                         }))
                     }
                     else {
-                        res.send(JSON.stringify({
-                            code: 'success',
-                            message: 'Successfully inserted into database!'
-                        }))
+                        //update the status
+                        console.log("here is 48", status, info._id, BotInfoCollection)
+                        BotInfoCollection.updateOne({"_id": ObjectId(info._id)}, { $set: {"status": status,"lead_number":lead_number}}, function(err, result){
+                            if (err) throw err;
+                            res.send(JSON.stringify({
+                                code: 'success',
+                                message: 'Successfully started the bot!'
+                            }))
+                        })
                     }
-                });
-            }
-            else {
-                if (info.status == "start") {
-                    res.send(JSON.stringify({
-                        code: 'failed',
-                        message: 'Bot is running now!'
-                    }))
                 }
-                else {
-                    //update the status
-                    console.log("here is 48", status, info._id, BotInfoCollection)
-                    BotInfoCollection.updateOne({"_id": ObjectId(info._id)}, { $set: {"status": status}}, function(err, result){
-                        if (err) throw err;
-                        res.send(JSON.stringify({
-                            code: 'success',
-                            message: 'Successfully started the bot!'
-                        }))
-                    })
-                }
-            }
-        })
+            })
+        }
+
 
     })
 
@@ -344,10 +374,31 @@ module.exports = (app) => {
 
     })
 
+    app.post("/account_info", (req, res) => {
+        console.log("called account info")
+        const username = req.body.username;
+        const bot_number = req.body.bot_number;
+        UsedLeadCollection.find({bot_number: bot_number, username: username}).then(used_leads =>{
+            MessageCollection.find({account_username: username,bot_number: bot_number}).then(msgs => {
+                CommentCollection.find({account_username: username, bot_number: bot_number}).then(comments => {
+                    console.log("used leads", used_leads)
+                    res.send(JSON.stringify({
+                        code: 'success',
+                        used_leads: used_leads,
+                        message: msgs,
+                        comment: comments
+                    }))
+                })
+            })
+        })
+    })
+
     app.post("/display_msg", (req, res) => {
         console.log("dm api called")
         MessageCollection.find({
-            username: req.body.username
+            username: req.body.username,
+            bot_number: req.body.bot_number,
+            profile: req.body.profile
         }).then(dms => {
             console.log("here is dms", dms)
             if (dms.length == 0) {
@@ -409,9 +460,10 @@ module.exports = (app) => {
 
     app.post("/update_is_marked", (req, res) => {
         console.log("inside updated marked", req.body)
-        CommentCollection.updateOne({"account_username": req.body.account_username, "to_username": req.body.to_username, "bot_number": req.body.bot_number, "profile": req.body.profile, "coming_time": req.body.coming_time, "content": req.body.content}, { $set: {"mark_as_read": true}}, function(err, result){
+        CommentCollection.updateOne({"account_username": req.body.account_username, "to_username": req.body.to_username, "bot_number": req.body.bot_number, "profile": req.body.profile, "coming_time": req.body.coming_time}, { $set: {"mark_as_read": true}}, function(err, result){
             console.log("hhhhhhhh")
             if (err) throw err;
+            console.log("after err")
             res.send(JSON.stringify({
                 code: 'success',
                 message: 'Marked as read'
@@ -421,8 +473,7 @@ module.exports = (app) => {
 
     app.post("/update_is_marked_dm", (req, res) => {
         console.log("inside updated marked dm", req.body)
-        MessageCollection.updateOne({"account_username": req.body.account_username, "username": req.body.username, "bot_number": req.body.bot_number, "profile": req.body.profile, "coming_time": req.body.coming_time, "content": req.body.content}, { $set: {"mark_as_read": true}}, function(err, result){
-            console.log("hhhhhhddhh")
+        MessageCollection.updateOne({"account_username": req.body.account_username, "username": req.body.username, "bot_number": req.body.bot_number, "profile": req.body.profile, "coming_time": req.body.coming_time}, { $set: {"mark_as_read": true}}, function(err, result){
             if (err) throw err;
             res.send(JSON.stringify({
                 code: 'success',
@@ -432,15 +483,16 @@ module.exports = (app) => {
     })
 
     //this is to add bots info for the test
-    app.post("/save_accounttttt", (req, res) =>{
+    app.post("/save_account", (req, res) =>{
         console.log("INSIDE SAVE ACCOUNT")
         AccountCollection.create({
-            username: "@dirtydebbie100",
-            bot_number: 5,
+            username: "@bot6",
+            bot_number: 6,
             status: true,
             number_of_tried_leads: 0,
             dm: 0,
             dm_reply: 0,
+            dm_expired: 0,
             comment: 0,
             comment_reply: 0,
             follow: 0,
@@ -453,4 +505,45 @@ module.exports = (app) => {
             }))
         });
     })
+
+    //reset report 
+    app.post("/reset_report", (req, res) => {
+        console.log("here is reset reports")
+        ReportCollection.find({}).then(reports => {
+            console.log("length", reports.length)
+            for(var k=0; k < reports.length; k++) {
+                ReportCollection.updateOne({_id: ObjectId(reports[k]._id)}, { $set: {"lead_number": 0, "sent_dm":0, "expired_dm":0,"spintax1_reply":0,"spintax2_reply":0,"sent_comment":0,"expired_comment":0,"comment_reply":0,"follow":0,"follow_back":0}}, function(err, result){
+                    if (err) throw err;
+                    if (k == (reports.length -1)){
+                        res.send(JSON.stringify({
+                            code: 'success',
+                            message: 'It has been set true'
+                        })) 
+                    }
+
+                });
+            }
+        })
+    })
+
+    //reset accounts
+    app.post("/reset_account", (req, res) => {
+        console.log("here is reset accounts")
+        AccountCollection.find({}).then(accounts => {
+            console.log("length", accounts.length)
+            for(var k=0; k < accounts.length; k++) {
+                AccountCollection.updateOne({_id: ObjectId(accounts[k]._id)}, { $set: {"status": true, "number_of_tried_leads":0, "dm":0,"dm_reply":0,"dm_expired":0,"comment":0,"comment_reply":0,"follow":0,"follow_back":0}}, function(err, result){
+                    if (err) throw err;
+                    if (k == (accounts.length -1)){
+                        res.send(JSON.stringify({
+                            code: 'success',
+                            message: 'It has been set true'
+                        })) 
+                    }
+
+                });
+            }
+        })
+    })
+
 };

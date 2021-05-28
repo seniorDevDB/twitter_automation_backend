@@ -18,53 +18,67 @@ module.exports = (app) => {
     app.post("/fetch_all_data", (req, res) => {
         console.log("fetach all data called")
         ReportCollection.find({}).then(report => {
-            console.log("report", report)
-            MessageCollection.find({"new_reply": true,}).then(new_message => {
-                console.log("new-msg", new_message)
-                let msg_temp = [];
-                for (let msg = 0 ; msg < new_message.length; msg ++){
-                    for (let each_msg = msg + 1 ; each_msg < new_message.length; each_msg ++){
-                        if (new_message[msg].to_username == new_message[each_msg].to_username && new_message[msg].account_username == new_message[each_msg].account_username){
-                            msg_temp.push(msg);
-                        }
-                    }
-                }
+            // console.log("report", report)
+            MessageCollection.find({"new_reply": true}).then(new_message => {
+                
 
-                const msg_result = [];
-                for (let msg = 0 ; msg < new_message.length; msg ++) {
-                    if ( ! msg_temp.includes(msg))
-                        msg_result.push(new_message[msg]);
+                var reversed_msg = [];
+                for (var i = new_message.length -1; i >=0; i--){
+                    reversed_msg.push(new_message[i])
                 }
-                console.log("msg result", msg_result)
+                console.log("neww-msg", reversed_msg)
 
+                // let msg_temp = [];
+
+                // for (let msg = 0 ; msg < new_message.length; msg ++){
+                //     for (let each_msg = msg + 1 ; each_msg < new_message.length; each_msg ++){
+                //         if (new_message[msg].to_username == new_message[each_msg].to_username && new_message[msg].account_username == new_message[each_msg].account_username){
+                //             msg_temp.push(msg);
+                //         }
+                //     }
+                // }
+
+                // const msg_result = [];
+                // for (let msg = 0 ; msg < new_message.length; msg ++) {
+                //     if ( ! msg_temp.includes(msg))
+                //         msg_result.push(new_message[msg]);
+                // }
+
+
+                // console.log("msg result", msg_result)
 
                 CommentCollection.find({"new_reply": true,}).then(reply_comment => {
-                    console.log("comments, reply", reply_comment)
+                    // console.log("comments, reply", reply_comment)
+                    var reversed_comment = [];
+                    for (var i = reply_comment.length - 1; i >=0; i--){
+                        reversed_comment.push(reply_comment[i])
+                    }
+
                     let temp = [];
-                    for (let each = 0 ; each < reply_comment.length; each ++){
-                        for (let each_comment = each + 1 ; each_comment < reply_comment.length; each_comment ++){
-                            if (reply_comment[each].to_username == reply_comment[each_comment].to_username && reply_comment[each].account_username == reply_comment[each_comment].account_username){
+                    for (let each = 0 ; each < reversed_comment.length; each ++){
+                        for (let each_comment = each + 1 ; each_comment < reversed_comment.length; each_comment ++){
+                            if (reversed_comment[each].to_username == reversed_comment[each_comment].to_username && reversed_comment[each].account_username == reversed_comment[each_comment].account_username){
                                 temp.push(each);
                             }
                         }
                     }
 
                     const result = [];
-                    for (let each = 0 ; each < reply_comment.length; each ++) {
+                    for (let each = 0 ; each < reversed_comment.length; each ++) {
                         if ( ! temp.includes(each))
-                            result.push(reply_comment[each]);
+                            result.push(reversed_comment[each]);
                     }
                     
-                    console.log("temmp", result)
+                    // console.log("temmp", result)
                     //get account info
                     AccountCollection.find({}).then(accounts => {
                         //get used leads 
                         UsedLeadCollection.find({}).then(used_lead => {
-                            console.log("used leads", used_lead)
+                            // console.log("used leads", used_lead)
                             res.send(JSON.stringify({
                                 code: 'success',
                                 report: report,
-                                new_message: new_message,
+                                new_message: reversed_msg,
                                 reply_comment: result,
                                 used_lead: used_lead,
                                 account: accounts
@@ -73,6 +87,68 @@ module.exports = (app) => {
                     })
                 })
             })
+        })
+    })
+
+    app.post("/fetch_dm_data", (req, res) => {   
+        console.log("callled fetch dm data")
+        MessageCollection.find({"new_reply": true}).then(new_message => {
+
+            var reversed_msg = [];
+            for (var i = new_message.length -1; i >=0; i--){
+                reversed_msg.push(new_message[i])
+            }
+
+            let msg_temp = [];
+
+            for (let msg = 0 ; msg < reversed_msg.length; msg ++){
+                for (let each_msg = msg + 1 ; each_msg < reversed_msg.length; each_msg ++){
+                    if (reversed_msg[msg].to_username == reversed_msg[each_msg].to_username && reversed_msg[msg].account_username == reversed_msg[each_msg].account_username){
+                        msg_temp.push(msg);
+                    }
+                }
+            }
+
+            const msg_result = [];
+            for (let msg = 0 ; msg < reversed_msg.length; msg ++) {
+                if ( ! msg_temp.includes(msg))
+                    msg_result.push(reversed_msg[msg]);
+            }
+
+            res.send(JSON.stringify({
+                code: 'success',
+                new_message: msg_result,
+            }))
+        })
+    })
+
+    app.post("/fetch_comment_data", (req, res) => {
+        CommentCollection.find({"new_reply": true,}).then(reply_comment => {
+            // console.log("comments, reply", reply_comment)
+            var reversed_comment = [];
+            for (var i = reply_comment.length - 1; i >=0; i--){
+                reversed_comment.push(reply_comment[i])
+            }
+
+            let temp = [];
+            for (let each = 0 ; each < reversed_comment.length; each ++){
+                for (let each_comment = each + 1 ; each_comment < reversed_comment.length; each_comment ++){
+                    if (reversed_comment[each].to_username == reversed_comment[each_comment].to_username && reversed_comment[each].account_username == reversed_comment[each_comment].account_username){
+                        temp.push(each);
+                    }
+                }
+            }
+
+            const result = [];
+            for (let each = 0 ; each < reversed_comment.length; each ++) {
+                if ( ! temp.includes(each))
+                    result.push(reversed_comment[each]);
+            }
+            
+            res.send(JSON.stringify({
+                code: 'success',
+                reply_comment: result,
+            }))
         })
     })
 

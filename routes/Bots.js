@@ -28,24 +28,24 @@ module.exports = (app) => {
                 }
                 console.log("neww-msg", reversed_msg)
 
-                // let msg_temp = [];
+                let msg_temp = [];
 
-                // for (let msg = 0 ; msg < new_message.length; msg ++){
-                //     for (let each_msg = msg + 1 ; each_msg < new_message.length; each_msg ++){
-                //         if (new_message[msg].to_username == new_message[each_msg].to_username && new_message[msg].account_username == new_message[each_msg].account_username){
-                //             msg_temp.push(msg);
-                //         }
-                //     }
-                // }
+                for (let msg = 0 ; msg < reversed_msg.length; msg ++){
+                    for (let each_msg = msg + 1 ; each_msg < reversed_msg.length; each_msg ++){
+                        if (reversed_msg[msg].username == reversed_msg[each_msg].username && reversed_msg[msg].account_username == reversed_msg[each_msg].account_username){
+                            msg_temp.push(msg);
+                        }
+                    }
+                }
 
-                // const msg_result = [];
-                // for (let msg = 0 ; msg < new_message.length; msg ++) {
-                //     if ( ! msg_temp.includes(msg))
-                //         msg_result.push(new_message[msg]);
-                // }
+                const msg_result = [];
+                for (let msg = 0 ; msg < reversed_msg.length; msg ++) {
+                    if ( ! msg_temp.includes(msg))
+                        msg_result.push(reversed_msg[msg]);
+                }
 
 
-                // console.log("msg result", msg_result)
+                console.log("msg result", msg_result.length)
 
                 CommentCollection.find({"new_reply": true,}).then(reply_comment => {
                     // console.log("comments, reply", reply_comment)
@@ -78,7 +78,7 @@ module.exports = (app) => {
                             res.send(JSON.stringify({
                                 code: 'success',
                                 report: report,
-                                new_message: reversed_msg,
+                                new_message: msg_result,
                                 reply_comment: result,
                                 used_lead: used_lead,
                                 account: accounts
@@ -537,7 +537,7 @@ module.exports = (app) => {
     app.post("/update_is_marked", (req, res) => {
         console.log("inside updated marked", req.body)
         CommentCollection.updateOne({"account_username": req.body.account_username, "to_username": req.body.to_username, "bot_number": req.body.bot_number, "profile": req.body.profile, "coming_time": req.body.coming_time}, { $set: {"mark_as_read": true}}, function(err, result){
-            console.log("hhhhhhhh")
+
             if (err) throw err;
             console.log("after err")
             res.send(JSON.stringify({

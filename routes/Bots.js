@@ -26,26 +26,23 @@ module.exports = (app) => {
                 for (var i = new_message.length -1; i >=0; i--){
                     reversed_msg.push(new_message[i])
                 }
-                console.log("neww-msg", reversed_msg)
+                console.log("neww-msg", reversed_msg.length)
 
-                let msg_temp = [];
+                let msg_result = [];
 
                 for (let msg = 0 ; msg < reversed_msg.length; msg ++){
-                    for (let each_msg = msg + 1 ; each_msg < reversed_msg.length; each_msg ++){
-                        if (reversed_msg[msg].username == reversed_msg[each_msg].username && reversed_msg[msg].account_username == reversed_msg[each_msg].account_username){
-                            msg_temp.push(msg);
+                    let exist = false;
+                    for (let each_msg = 0 ; each_msg < msg_result.length; each_msg ++){
+                        if (reversed_msg[msg].username == msg_result[each_msg].username && reversed_msg[msg].account_username == msg_result[each_msg].account_username){
+                            exist = true;
+                            break;
                         }
                     }
-                }
-
-                const msg_result = [];
-                for (let msg = 0 ; msg < reversed_msg.length; msg ++) {
-                    if ( ! msg_temp.includes(msg))
+                    if( !exist ) {
                         msg_result.push(reversed_msg[msg]);
+                    }
                 }
-
-
-                console.log("msg result", msg_result.length)
+                // console.log("msg result", msg_result.map(i => ({us: i.username, ac: i.account_username })))
 
                 CommentCollection.find({"new_reply": true,}).then(reply_comment => {
                     // console.log("comments, reply", reply_comment)
@@ -54,22 +51,21 @@ module.exports = (app) => {
                         reversed_comment.push(reply_comment[i])
                     }
 
-                    let temp = [];
-                    for (let each = 0 ; each < reversed_comment.length; each ++){
-                        for (let each_comment = each + 1 ; each_comment < reversed_comment.length; each_comment ++){
-                            if (reversed_comment[each].to_username == reversed_comment[each_comment].to_username && reversed_comment[each].account_username == reversed_comment[each_comment].account_username){
-                                temp.push(each);
+                    let comment_result = []
+                    for (let msg = 0 ; msg < reversed_comment.length; msg ++){
+                        let exist = false;
+                        for (let each_msg = 0 ; each_msg < comment_result.length; each_msg ++){
+                            if (reversed_comment[msg].to_username == comment_result[each_msg].to_username && reversed_comment[msg].account_username == comment_result[each_msg].account_username){
+                                exist = true;
+                                break;
                             }
+                        }
+                        if( !exist ) {
+                            comment_result.push(reversed_comment[msg]);
                         }
                     }
 
-                    const result = [];
-                    for (let each = 0 ; each < reversed_comment.length; each ++) {
-                        if ( ! temp.includes(each))
-                            result.push(reversed_comment[each]);
-                    }
-                    
-                    // console.log("temmp", result)
+
                     //get account info
                     AccountCollection.find({}).then(accounts => {
                         //get used leads 
@@ -79,7 +75,7 @@ module.exports = (app) => {
                                 code: 'success',
                                 report: report,
                                 new_message: msg_result,
-                                reply_comment: result,
+                                reply_comment: comment_result,
                                 used_lead: used_lead,
                                 account: accounts
                             }))

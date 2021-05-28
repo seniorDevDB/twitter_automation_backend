@@ -532,7 +532,7 @@ module.exports = (app) => {
 
     app.post("/update_is_marked", (req, res) => {
         console.log("inside updated marked", req.body)
-        CommentCollection.updateOne({"account_username": req.body.account_username, "to_username": req.body.to_username, "bot_number": req.body.bot_number, "profile": req.body.profile, "coming_time": req.body.coming_time}, { $set: {"mark_as_read": true}}, function(err, result){
+        CommentCollection.updateOne({"account_username": req.body.account_username, "to_username": req.body.to_username, "bot_number": req.body.bot_number, "profile": req.body.profile, "coming_time": req.body.coming_time,"content": req.body.content}, { $set: {"mark_as_read": true}}, function(err, result){
 
             if (err) throw err;
             console.log("after err")
@@ -545,8 +545,10 @@ module.exports = (app) => {
 
     app.post("/update_is_marked_dm", (req, res) => {
         console.log("inside updated marked dm", req.body)
-        MessageCollection.updateOne({"account_username": req.body.account_username, "username": req.body.username, "bot_number": req.body.bot_number, "profile": req.body.profile, "coming_time": req.body.coming_time}, { $set: {"mark_as_read": true}}, function(err, result){
+        MessageCollection.updateOne({"account_username": req.body.account_username, "username": req.body.username, "bot_number": req.body.bot_number, "profile": req.body.profile, "coming_time": req.body.coming_time, "content": req.body.content}, { $set: {"mark_as_read": true}}, function(err, result){
+            console.log("jjjjjjjjjjjjjj", result)
             if (err) throw err;
+            console.log("after")
             res.send(JSON.stringify({
                 code: 'success',
                 message: 'Marked as read'

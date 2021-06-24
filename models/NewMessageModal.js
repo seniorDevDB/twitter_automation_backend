@@ -8,7 +8,7 @@ const NewMessageSchema = new Schema({
   content: String,
   save_time: String,
   bot_number: Number,
-  profile: Number
+  profile_port: Number
 });
 
 module.exports = NewMessageCollection = mongoose.model("new_message", NewMessageSchema);

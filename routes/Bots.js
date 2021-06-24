@@ -42,46 +42,61 @@ module.exports = (app) => {
                         msg_result.push(reversed_msg[msg]);
                     }
                 }
-                // console.log("msg result", msg_result.map(i => ({us: i.username, ac: i.account_username })))
 
-                CommentCollection.find({"new_reply": true,}).then(reply_comment => {
-                    // console.log("comments, reply", reply_comment)
-                    var reversed_comment = [];
-                    for (var i = reply_comment.length - 1; i >=0; i--){
-                        reversed_comment.push(reply_comment[i])
-                    }
-
-                    let comment_result = []
-                    for (let msg = 0 ; msg < reversed_comment.length; msg ++){
-                        let exist = false;
-                        for (let each_msg = 0 ; each_msg < comment_result.length; each_msg ++){
-                            if (reversed_comment[msg].to_username == comment_result[each_msg].to_username && reversed_comment[msg].account_username == comment_result[each_msg].account_username){
-                                exist = true;
-                                break;
-                            }
-                        }
-                        if( !exist ) {
-                            comment_result.push(reversed_comment[msg]);
-                        }
-                    }
-
-
-                    //get account info
-                    AccountCollection.find({}).then(accounts => {
-                        //get used leads 
-                        UsedLeadCollection.find({}).then(used_lead => {
-                            // console.log("used leads", used_lead)
-                            res.send(JSON.stringify({
-                                code: 'success',
-                                report: report,
-                                new_message: msg_result,
-                                reply_comment: comment_result,
-                                used_lead: used_lead,
-                                account: accounts
-                            }))
-                        })
+                //get account info
+                AccountCollection.find({}).then(accounts => {
+                    //get used leads 
+                    UsedLeadCollection.find({}).then(used_lead => {
+                        // console.log("used leads", used_lead)
+                        res.send(JSON.stringify({
+                            code: 'success',
+                            report: report,
+                            new_message: msg_result,
+                            account: accounts
+                        }))
                     })
                 })
+
+                // console.log("msg result", msg_result.map(i => ({us: i.username, ac: i.account_username })))
+
+                // CommentCollection.find({"new_reply": true,}).then(reply_comment => {
+                //     // console.log("comments, reply", reply_comment)
+                //     var reversed_comment = [];
+                //     for (var i = reply_comment.length - 1; i >=0; i--){
+                //         reversed_comment.push(reply_comment[i])
+                //     }
+
+                //     let comment_result = []
+                //     for (let msg = 0 ; msg < reversed_comment.length; msg ++){
+                //         let exist = false;
+                //         for (let each_msg = 0 ; each_msg < comment_result.length; each_msg ++){
+                //             if (reversed_comment[msg].to_username == comment_result[each_msg].to_username && reversed_comment[msg].account_username == comment_result[each_msg].account_username){
+                //                 exist = true;
+                //                 break;
+                //             }
+                //         }
+                //         if( !exist ) {
+                //             comment_result.push(reversed_comment[msg]);
+                //         }
+                //     }
+
+
+                //     //get account info
+                //     AccountCollection.find({}).then(accounts => {
+                //         //get used leads 
+                //         UsedLeadCollection.find({}).then(used_lead => {
+                //             // console.log("used leads", used_lead)
+                //             res.send(JSON.stringify({
+                //                 code: 'success',
+                //                 report: report,
+                //                 new_message: msg_result,
+                //                 reply_comment: comment_result,
+                //                 used_lead: used_lead,
+                //                 account: accounts
+                //             }))
+                //         })
+                //     })
+                // })
             })
         })
     })
@@ -466,11 +481,11 @@ module.exports = (app) => {
     })
 
     app.post("/display_msg", (req, res) => {
-        console.log("dm api called")
+        console.log("dm api called", req.body)
         MessageCollection.find({
             username: req.body.username,
             bot_number: req.body.bot_number,
-            profile: req.body.profile
+            profile_port: req.body.profile_port
         }).then(dms => {
             console.log("here is dms", dms)
             if (dms.length == 0) {
@@ -502,7 +517,7 @@ module.exports = (app) => {
         let username = req.body.username
         let link = req.body.link
         let bot_number = Number(req.body.bot_number)
-        let profile = Number(req.body.profile)
+        let profile_port = Number(req.body.profile_port)
         console.log("here is new msg backedn",req.body)
 
         ReplyMessageCollection.create({
@@ -511,7 +526,7 @@ module.exports = (app) => {
             content,
             link,
             bot_number,
-            profile
+            profile_port
         }, function(err) {
             if ( err ) {
                 console.log(err)
@@ -532,7 +547,7 @@ module.exports = (app) => {
 
     app.post("/update_is_marked", (req, res) => {
         console.log("inside updated marked", req.body)
-        CommentCollection.updateOne({"account_username": req.body.account_username, "to_username": req.body.to_username, "bot_number": req.body.bot_number, "profile": req.body.profile, "coming_time": req.body.coming_time,"content": req.body.content}, { $set: {"mark_as_read": true}}, function(err, result){
+        CommentCollection.updateOne({"account_username": req.body.account_username, "to_username": req.body.to_username, "bot_number": req.body.bot_number,"coming_time": req.body.coming_time,"content": req.body.content}, { $set: {"mark_as_read": true}}, function(err, result){
 
             if (err) throw err;
             console.log("after err")
@@ -545,7 +560,7 @@ module.exports = (app) => {
 
     app.post("/update_is_marked_dm", (req, res) => {
         console.log("inside updated marked dm", req.body)
-        MessageCollection.updateOne({"account_username": req.body.account_username, "username": req.body.username, "bot_number": req.body.bot_number, "profile": req.body.profile, "coming_time": req.body.coming_time, "content": req.body.content}, { $set: {"mark_as_read": true}}, function(err, result){
+        MessageCollection.updateOne({"account_username": req.body.account_username, "username": req.body.username, "bot_number": req.body.bot_number, "coming_time": req.body.coming_time, "content": req.body.content}, { $set: {"mark_as_read": true}}, function(err, result){
             console.log("jjjjjjjjjjjjjj", result)
             if (err) throw err;
             console.log("after")
@@ -556,12 +571,31 @@ module.exports = (app) => {
         })
     })
 
+    // add report
+    app.get("/add_report", (req, res) => {
+        ReportCollection.create({
+            bot_number: 7,
+            lead_number: 0,
+            sent_dm: 0,
+            spintax1_reply: 0,
+            spintax2_reply: 0,
+            follow: 0,
+            follow_back: 0
+        }, function(err) {
+            if (err) throw err;
+            res.send(JSON.stringify({
+                code: 'success',
+                message: 'Saved'
+            }))
+        });
+    })
+
     //this is to add bots info for the test
     app.post("/save_account", (req, res) =>{
         console.log("INSIDE SAVE ACCOUNT")
         AccountCollection.create({
-            username: "@bot6",
-            bot_number: 6,
+            username: "@bot8",
+            bot_number: 8,
             status: true,
             number_of_tried_leads: 0,
             dm: 0,

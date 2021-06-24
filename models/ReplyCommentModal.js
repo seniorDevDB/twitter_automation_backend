@@ -10,7 +10,7 @@ const ReplyCommentSchema = new Schema({
   previous_content: String,
   link: String,
   bot_number: Number,
-  profile: Number
+  profile_port: Number
 });
 
 module.exports = ReplyCommentCollection = mongoose.model("reply_comment", ReplyCommentSchema);

@@ -10,12 +10,12 @@ const ReportSchema = new Schema({
   sent_dm: Number,
   expired_dm: Number,
   spintax1_reply: Number,
-  spintax2_reply: Number,
   sent_comment: Number,
   expired_comment: Number,
   comment_reply: Number,
   follow: Number,
-  follow_back: Number
+  follow_back: Number,
+  unfollow: Number,
 });
 
 module.exports = ReportCollection = mongoose.model("report", ReportSchema);

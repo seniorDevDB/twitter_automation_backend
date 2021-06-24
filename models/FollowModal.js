@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const FollowSchema = new Schema({
   bot_number: Number,
   username: String,
-  profile: Number,
+  profile_port: Number,
   account_username: String
 });
 

@@ -14,6 +14,7 @@ const AccountSchema = new Schema({
   comment_reply: Number,
   follow: Number,
   follow_back: Number,
+  unfollow: Number,
 });
 
 module.exports = AccountCollection = mongoose.model("account", AccountSchema);

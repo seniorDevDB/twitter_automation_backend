@@ -8,7 +8,7 @@ const ReplyMessageSchema = new Schema({
   content: String,
   link: String,
   bot_number: Number,
-  profile: Number
+  profile_port: Number
 });
 
 module.exports = ReplyMessageCollection = mongoose.model("reply_message", ReplyMessageSchema);

@@ -9,7 +9,7 @@ const MessageSchema = new Schema({
   content: String,
   save_time: String,
   bot_number: Number,
-  profile: Number,
+  profile_port: Number,
   link: String,
   new_reply: Boolean,
   mark_as_read: Boolean

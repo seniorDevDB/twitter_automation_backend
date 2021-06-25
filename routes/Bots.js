@@ -620,7 +620,7 @@ module.exports = (app) => {
         ReportCollection.find({}).then(reports => {
             console.log("length", reports.length)
             for(var k=0; k < reports.length; k++) {
-                ReportCollection.updateOne({_id: ObjectId(reports[k]._id)}, { $set: {"lead_number": 0, "sent_dm":0, "expired_dm":0,"spintax1_reply":0,"spintax2_reply":0,"sent_comment":0,"expired_comment":0,"comment_reply":0,"follow":0,"follow_back":0}}, function(err, result){
+                ReportCollection.updateOne({_id: ObjectId(reports[k]._id)}, { $set: {"lead_number": 0, "sent_dm":0, "expired_dm":0,"spintax1_reply":0,"spintax2_reply":0,"sent_comment":0,"expired_comment":0,"comment_reply":0,"follow":0,"follow_back":0,"unfollow":0}}, function(err, result){
                     if (err) throw err;
                     if (k == (reports.length -1)){
                         res.send(JSON.stringify({
@@ -640,7 +640,7 @@ module.exports = (app) => {
         AccountCollection.find({}).then(accounts => {
             console.log("length", accounts.length)
             for(var k=0; k < accounts.length; k++) {
-                AccountCollection.updateOne({_id: ObjectId(accounts[k]._id)}, { $set: {"status": true, "number_of_tried_leads":0, "dm":0,"dm_reply":0,"dm_expired":0,"comment":0,"comment_reply":0,"follow":0,"follow_back":0}}, function(err, result){
+                AccountCollection.updateOne({_id: ObjectId(accounts[k]._id)}, { $set: {"status": true, "number_of_tried_leads":0, "dm":0,"dm_reply":0,"dm_expired":0,"comment":0,"comment_reply":0,"follow":0,"follow_back":0,"unfollow":0}}, function(err, result){
                     if (err) throw err;
                     if (k == (accounts.length -1)){
                         res.send(JSON.stringify({
